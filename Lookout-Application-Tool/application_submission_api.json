@@ -1,0 +1,393 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Application Submission API",
+    "description": "Application Submission API is used to submit application file or Apple/Play store url for analysis. \n\nFor authorization, set up an Application Key with the app_submission.write scope. Use this key to generate an OAuth2 token and include the token in the Authorization header as a Bearer token in your request. \n\nFor file submission, accepted file types include unencrypted ipa, apk and aab with size up to 2GB.\n\nThe response includes a reference ID that can be used to query the status of the submission using the Status API.\n",
+    "version": "1.0"
+  },
+  "security": [{
+    "oAuth2": []
+  }],
+  "paths": {
+    "/api/v1/applications/submissions/file": {
+      "post": {
+        "summary": "Submit a local mobile application file for analysis.",
+        "description": "Submit a local mobile application file for analysis.\n\n- Accepted file types include unencrypted ipa, apk and aab.\n- Accepted file size is up to 2GB.\n- Uploaded file must match with the Content-MD5 header if provided.\n\nExample requests:\n\ncurl -v -X POST \"https://<api_host>/<api_path>\" -H \"Authorization: Bearer ${TOKEN}\" -H \"Content-MD5: ${OPTIONAL_FILE_MD5}\" -F \"file=@<path_to_local_app_file>;filename=<local_app_file>.ipa\"\n\nNote: use filename to set the correct file extension if the local file does not have one.\n",
+        "parameters": [{
+          "name": "Content-MD5",
+          "in": "header",
+          "description": "File md5",
+          "required": false
+        }],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": ["file"],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "Binary file to upload",
+                    "format": "binary",
+                    "exampleSetFlag": false
+                  }
+                },
+                "exampleSetFlag": false
+              },
+              "exampleSetFlag": false
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Request accepted for processing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "reference_id": "c291cmNlMTIzX2luc3RhbmNlNDU2"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "reference_id": "c291cmNlMTIzX2luc3RhbmNlNDU2"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "error": "error"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "error": "error"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "error": "Unauthorized request"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "error": "Unauthorized request"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server side error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "error": "Unexpected server side error"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "error": "Unexpected server side error"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/applications/submissions/store": {
+      "post": {
+        "summary": "Trigger acquisition/analysis for a given Apple/Play store application by its store URL",
+        "description": "Trigger acquisition/analysis for a given Apple/Play store application by its store URL.\n\n The response includes a reference ID that can be used to query the status of the submission using the Status API.\n\n Example requests:\n\n APP_URL=\",https%3A%2F%2Fapps.apple.com%2Fus%2Fapp%2Ffacebook%2Fid284882215\"\n\n APP_URL=\"https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.facebook.katana%26hl%3Den\"\n\n curl -v -X POST \"https://<api_host>/<api_path>?url=${APP_URL}\" -H \"Authorization: Bearer ${TOKEN}\"\n",
+        "parameters": [{
+          "name": "url",
+          "in": "query",
+          "description": "the Apple/Play store URL of the application",
+          "required": true
+        }],
+        "responses": {
+          "202": {
+            "description": "Request accepted for processing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": ["url"],
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                    "reference_id": "c291cmNlMTIzX2luc3RhbmNlNDU2"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                  "reference_id": "c291cmNlMTIzX2luc3RhbmNlNDU2"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": ["url"],
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                    "error": "Invalid request"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                  "error": "Invalid request"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": ["url"],
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                    "error": "Unauthorized request"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                  "error": "Unauthorized request"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "404": {
+            "description": "App not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": ["url"],
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                    "error": "Not found"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                  "error": "Not found"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server side error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": ["url"],
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                    "error": "Unexpected server side error"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                  "error": "Unexpected server side error"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          },
+          "501": {
+            "description": "App not supported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": ["url"],
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "referenceId": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "exampleSetFlag": false
+                    }
+                  },
+                  "example": {
+                    "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                    "error": "NotSupported"
+                  },
+                  "exampleSetFlag": true
+                },
+                "example": {
+                  "url": "https://apps.apple.com/us/app/someapp/id123456789",
+                  "error": "NotSupported"
+                },
+                "exampleSetFlag": true
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oAuth2": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  }
+}

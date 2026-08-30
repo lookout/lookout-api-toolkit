@@ -1,0 +1,54 @@
+
+# Extracted PyPI packages
+lookout_mra_client-*.dist-info/
+lookout_mra_client-*-py3-none-any/
+
+# Configuration files (contain API keys and credentials — never commit)
+config.ini
+config.state
+*.state
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Internal metadata
+CLAUDE.md
+.claude/
